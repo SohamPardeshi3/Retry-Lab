@@ -48,7 +48,7 @@ jobs:
           POST_TEXT: ${{ inputs.post_text }}
           DUE_AT: ${{ inputs.due_at }}
         run: |
-          node <<'NODE'
+          node --input-type=module <<'NODE'
           const apiKey = process.env.BUFFER_API_KEY;
           const channelId = process.env.BUFFER_LINKEDIN_CHANNEL_ID;
           if (!apiKey || !channelId) {
