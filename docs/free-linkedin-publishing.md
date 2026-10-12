@@ -28,7 +28,7 @@ RetryLab can schedule an explicitly approved LinkedIn personal-profile post thro
        id
        name
        descriptor
-       service { name }
+       service
        type
      }
    }
