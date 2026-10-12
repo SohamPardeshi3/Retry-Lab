@@ -4,14 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       approved:
-        description: "I explicitly approve scheduling this exact post"
+        description: "I explicitly approve scheduling the current content/linkedin-post.txt"
         required: true
         type: boolean
         default: false
-      post_text:
-        description: "Exact LinkedIn post text to schedule"
-        required: true
-        type: string
       due_at:
         description: "Publish time in ISO 8601, including timezone (example: 2026-10-16T09:00:00+05:30)"
         required: true
@@ -24,17 +20,27 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Require explicit approval
+      - name: Check out approved draft source
+        uses: actions/checkout@v4
+
+      - name: Require explicit approval and validate draft
         env:
           APPROVED: ${{ inputs.approved }}
-          POST_TEXT: ${{ inputs.post_text }}
           DUE_AT: ${{ inputs.due_at }}
         run: |
           if [ "$APPROVED" != "true" ]; then
             echo "Approval was not granted. Nothing was sent to Buffer."
             exit 1
           fi
-          if [ -z "$(printf '%s' "$POST_TEXT" | tr -d '[:space:]')" ]; then
+          if [ ! -f content/linkedin-post.txt ]; then
+            echo "Missing content/linkedin-post.txt."
+            exit 1
+          fi
+          if grep -q "DRAFT PLACEHOLDER - DO NOT PUBLISH" content/linkedin-post.txt; then
+            echo "Replace the placeholder with the exact reviewed post before publishing."
+            exit 1
+          fi
+          if [ -z "$(tr -d '[:space:]' < content/linkedin-post.txt)" ]; then
             echo "Post text is empty."
             exit 1
           fi
@@ -45,12 +51,14 @@ jobs:
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
           BUFFER_LINKEDIN_CHANNEL_ID: ${{ secrets.BUFFER_LINKEDIN_CHANNEL_ID }}
-          POST_TEXT: ${{ inputs.post_text }}
           DUE_AT: ${{ inputs.due_at }}
         run: |
           node --input-type=module <<'NODE'
+          import { readFileSync } from "node:fs";
+
           const apiKey = process.env.BUFFER_API_KEY;
           const channelId = process.env.BUFFER_LINKEDIN_CHANNEL_ID;
+          const postText = readFileSync("content/linkedin-post.txt", "utf8").trim();
           if (!apiKey || !channelId) {
             throw new Error("Add BUFFER_API_KEY and BUFFER_LINKEDIN_CHANNEL_ID in GitHub Actions secrets first.");
           }
@@ -70,7 +78,7 @@ jobs:
               saveToDraft: false,
               aiAssisted: true,
               source: "RetryLab GitHub Actions",
-              text: process.env.POST_TEXT,
+              text: postText,
               dueAt: process.env.DUE_AT
             }
           };
