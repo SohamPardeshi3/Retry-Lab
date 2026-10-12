@@ -5,7 +5,7 @@ RetryLab can schedule an explicitly approved LinkedIn personal-profile post thro
 ## One-time setup
 
 1. Create a free account at https://buffer.com/pricing.
-2. Connect your **personal LinkedIn profile** in Buffer and confirm it can publish automatically.
+2. Connect your **personal LinkedIn profile** in Buffer and confirm automatic publishing is enabled.
 3. Open Buffer's API settings and create a personal API key: https://publish.buffer.com/settings/api.
 4. In Buffer's API Explorer, run this query to get your organization ID:
 
@@ -44,9 +44,10 @@ RetryLab can schedule an explicitly approved LinkedIn personal-profile post thro
 
 ## How to publish after review
 
-1. Prepare the post text and get approval in the ChatGPT conversation.
-2. Open **Actions → Approved LinkedIn Publisher → Run workflow** in this repository.
-3. Paste the exact approved text, set the future publish time as ISO 8601 including timezone (for example `2026-10-16T09:00:00+05:30`), and explicitly check **I approve scheduling this exact post**.
-4. The workflow sends it to Buffer for automatic publishing at that time. If approval is false, the workflow stops without sending anything.
+1. Review the exact post in `content/linkedin-post.txt`. It must contain only the final post text, without Markdown headings.
+2. After the post is approved in ChatGPT, make sure the file contains the exact approved copy and commit that change to `main`.
+3. Open **Actions → Approved LinkedIn Publisher → Run workflow**.
+4. Explicitly check **I approve scheduling the current content/linkedin-post.txt** and enter a future publish time as ISO 8601 including timezone (for example `2026-10-16T09:00:00+05:30`).
+5. The workflow sends the approved copy to Buffer for automatic publishing at that time. If approval is false, the workflow stops without sending anything.
 
-This is a deliberate second approval gate: the scheduled workflow never runs on a timer and cannot publish unless you manually run it with approval set to true. This automation is only for your own LinkedIn posts; it does not like, comment on, or engage with other people's posts.
+This is a deliberate second approval gate: the workflow never runs on a timer and cannot publish unless you manually run it with approval set to true. This automation is only for your own LinkedIn posts; it does not like, comment on, or engage with other people's posts.
