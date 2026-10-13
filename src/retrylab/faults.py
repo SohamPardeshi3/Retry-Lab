@@ -19,13 +19,8 @@ class FaultScenario:
     retry_after_seconds: int = 1
 
     @classmethod
-    def from_header(cls, value: str | None) -> "FaultScenario":
-        """Parse a safe, intentionally small scenario vocabulary from a request header.
-
-        Accepted forms: ``latency:250``, ``server_error:503``, ``rate_limit`` and
-        ``timeout:1500``. Timeout means delaying before returning a simulated 504; it
-        does not abort the proxy's own upstream connection.
-        """
+    def from_header(cls, value: str | None) -> FaultScenario:
+        """Parse the supported fault vocabulary from a request header."""
         if not value:
             return cls()
         raw = value.strip().lower()
