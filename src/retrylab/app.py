@@ -1,10 +1,10 @@
-"""FastAPI reverse proxy with explicit per-request fault injection."""
+""""FastAPI reverse proxy with explicit per-request fault injection."""
 
 from __future__ import annotations
 
 import os
 import time
-from typing import Iterable
+from collections.abc import Iterable
 
 import httpx
 from fastapi import FastAPI, Request
